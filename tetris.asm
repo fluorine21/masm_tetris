@@ -20,6 +20,7 @@ include tetris.inc
 ;;Upper half of the word is the state, lower half of the word is the color
 ;;Grid size is 24 rows 10 cols, so we'll store it as effective addr = col*24 + row
 ;;Starting upper left moving down
+;;Initializing with 0ffffh to create white background and empty type field
 tetris_board WORD (24*10) DUP (0ffffh)
 
 ;;States:
@@ -58,7 +59,7 @@ T_piece PIECE_STRUCT<0, 3, 1, 4, 0, 4, 0, 5>
 Z_piece PIECE_STRUCT<2, 3, 1, 3, 1, 4, 0, 4>
 
 ;;S Piece coordinates (row,col): (2, 4), (1, 4), (1, 3), (0, 3)
-S_piece PIECE_STRUCT<2, 3, 1, 3, 1, 3, 0, 3>
+S_piece PIECE_STRUCT<2, 4, 1, 4, 1, 3, 0, 3>
 
 ;;O Piece coordinates (row,col): (1, 3), (0, 3), (1, 4), (0, 4)
 O_piece PIECE_STRUCT<1, 3, 0, 3, 1, 4, 0, 4>
@@ -104,6 +105,11 @@ AddPiece PROC USES eax ebx ecx edx esi edi
     mov color, 0aah
 
     ;;LTIZSOJ
+
+    ;;Testing purposes to get the same shape every time
+    ;;An offset of 4 here is pointing to longwise I block?
+    ;;mov edx, 4
+    ;;This issue was caused by an incorrectly initialized S piece
 
     ;;Multiply the value in edx by the size of the piece struct
     mov eax, edx
