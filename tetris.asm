@@ -68,14 +68,17 @@ O_piece PIECE_STRUCT<1, 3, 0, 3, 1, 4, 0, 4>
 J_piece PIECE_STRUCT<1, 5, 0, 5, 0, 4, 0, 3>
 
 
-
+;;Global variables used to time when pieces move down
+TICK_HIGH DWORD 0
+TICK_LOW DWORD 0
+TICK_COUNT DWORD 0
 
 .CODE
 
 CompleteRowsCheck PROC USES ebx ecx edx esi edi
 
 
-
+    ret
 
 CompleteRowsCheck ENDP
 
@@ -388,13 +391,13 @@ L1: ;;Outer 5x5 loop check
 
             ;;Must be in bounds and not at the bottom of the row
             ;;Get the value of the piece at this location
-            invoke GetBoardLoc, ecx, edx
+            invoke GetBoardLocType, ecx, edx
 
             ;;Value is in eax
 
             ;;If this value is empty or has a static block
-            cmp eax, 0
-            jle END3;;then skip this location
+            cmp eax, 1
+            jne END3;;then skip this location
 
             ;;This value must be an active game piece
 
@@ -405,7 +408,7 @@ L1: ;;Outer 5x5 loop check
             
             ;;Get the value of the block below it
             add ecx, 1
-            invoke GetBoardLoc, ecx, edx
+            invoke GetBoardLocType, ecx, edx
             ;;Answer is in eax
 
             ;;If the block below is 0 (static block)
@@ -496,11 +499,11 @@ L2: ;;Inner loop check
 
 
     ;;row and col are within the board
-    invoke GetBoardLoc, ecx, edx
+    invoke GetBoardLocType, ecx, edx
 
     ;;If this piece is not a the active board piece
-    cmp eax, 0
-    jle END3
+    cmp eax, 1
+    jne END3
 
     ;;Must be an active board piece
     ;;Just shift it down 1
@@ -708,7 +711,7 @@ RotatePiece PROC USES eax ebx ecx edx esi edi dir:BYTE
 
 ;;Need to define rotation matricies and use them with forloop for this function
 
-
+    ret
 RotatePiece ENDP
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -732,6 +735,58 @@ RT:
     ret
 
 CheckAddr ENDP
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;Calls UpdateBoard if a set ammount of time has passed;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+GameTick PROC USES eax ebx ecx edx esi edi
+
+    ;;If TICK_HIGH is 0, then this is the first function call
+    ;;We need to set up the tick counter
+    cmp TICK_HIGH, 0
+    jne SKIP_SETUP
+
+    ;;Set up the counter
+    rdtsc
+    mov TICK_LOW, eax
+    mov TICK_HIGH, edx
+    ret
+
+SKIP_SETUP:
+
+    rdtsc
+
+    sub eax, TICK_LOW
+    ;;If the counter has not been triggered
+    cmp eax, TICK_CYCLES
+    jl RT
+
+    ;;Counter must be triggered
+
+    ;;Increment the global counter
+    inc TICK_COUNT
+
+    ;;Reset the local counter
+    rdtsc
+    mov TICK_LOW, eax
+    mov TICK_HIGH, edx
+
+    cmp TICK_COUNT, TICK_MAX
+    jl RT
+
+    ;;Reset the tick count
+    mov TICK_COUNT, 0
+
+    ;;Invoke UpdateBoard
+    invoke UpdateBoard
+
+
+RT:
+    ret
+
+
+GameTick ENDP
 
 
 

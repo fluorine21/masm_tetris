@@ -42,16 +42,7 @@ GameInit PROC USES ebx
 
 	invoke UpdateBoard
 
-	mov ebx, 0
-
-	L1:
-	cmp ebx, 30
-	jg END1
-
-		invoke UpdateBoard
-
-	inc ebx
-	jmp L1
+	
 
 END1:
 
@@ -62,7 +53,7 @@ GameInit ENDP
 
 GamePlay PROC
 
-
+	invoke GameTick
 	invoke DrawBoard
 
 	

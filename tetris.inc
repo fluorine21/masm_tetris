@@ -16,7 +16,7 @@ ShiftBlockDown PROTO STDCALL row:DWORD, col:DWORD
 ShiftPieceLR PROTO STDCALL off_set:DWORD
 CheckAddr PROTO STDCALL row:DWORD, col:DWORD
 CompleteRowsCheck PROTO STDCALL
-
+GameTick PROTO STDCALL
 
 ;;Struct Definitions
 
@@ -33,3 +33,7 @@ _PIECE_STRUCT ENDS
 
 
 PIECE_STRUCT TYPEDEF _PIECE_STRUCT
+
+
+TICK_CYCLES equ 4294967295 ;; Must be in number of CPU clock cycles
+TICK_MAX equ 10 ;;maximum number of cycle ticks before UpdateBoard is called
