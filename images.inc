@@ -1,0 +1,9 @@
+include blit.inc
+;;include trig.inc
+
+;;Bitmap Images
+EXTERNDEF arnold:EECS205BITMAP
+EXTERNDEF turtle_hiding:EECS205BITMAP
+EXTERNDEF bullet:EECS205BITMAP
+EXTERNDEF turtle:EECS205BITMAP
+EXTERNDEF background:EECS205BITMAP

@@ -1,0 +1,34 @@
+
+;;Function Prototypes
+UpdateBoard PROTO STDCALL 
+ShiftPiece PROTO STDCALL dir:BYTE
+AddPiece PROTO STDCALL 
+CementPiece PROTO STDCALL 
+RotatePiece PROTO STDCALL dir:BYTE
+AddPiece PROTO STDCALL 
+GetBoardLoc PROTO STDCALL row:DWORD, col:DWORD
+GetBoardLocType PROTO STDCALL row:DWORD, col:DWORD
+SetBoardLoc PROTO row:DWORD, col:DWORD, val:DWORD
+SetBoardLocType PROTO STDCALL row:DWORD, col:DWORD, val:DWORD
+SetBoardLocColor PROTO STDCALL row:DWORD, col:DWORD, val:DWORD
+ShiftPieceDown PROTO STDCALL
+ShiftBlockDown PROTO STDCALL row:DWORD, col:DWORD
+ShiftPieceLR PROTO STDCALL off_set:DWORD
+CheckAddr PROTO STDCALL row:DWORD, col:DWORD
+
+
+;;Struct Definitions
+
+_PIECE_STRUCT STRUCT
+r0 DWORD ?
+c0 DWORD ?
+r1 DWORD ?
+c1 DWORD ?
+r2 DWORD ?
+c2 DWORD ?
+r3 DWORD ?
+c3 DWORD ?
+_PIECE_STRUCT ENDS
+
+
+PIECE_STRUCT TYPEDEF _PIECE_STRUCT

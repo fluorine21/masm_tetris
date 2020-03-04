@@ -1,0 +1,19 @@
+Below is the list of assignment 4 requirements and my features which fulfill these requirements.
+
+Implement ​CheckIntersect
+
+Have at least two bitmap based sprites each of which does at least one of the following:
+
+moves around the screen - Both bitmaps move around the screen
+rotates - the turtle rotates while colliding with bullet
+animates by switching bitmaps - turtle also switches bitmaps while colliding with bullet
+
+Have at least one of these sprites respond to mouse - bullet jumps to location of mouse click
+Have at least one of these sprites respond to keyboard - turtle velocity can be changed via WASD, turtle also bounces off walls.
+
+Must have some response to the collision of your sprites. 
+Examples include, but notlimited to:
+change in direction
+animation - turtle changes sprite image and rotates while colliding with bullet
+display a message
+
