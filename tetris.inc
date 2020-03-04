@@ -15,6 +15,7 @@ ShiftPieceDown PROTO STDCALL
 ShiftBlockDown PROTO STDCALL row:DWORD, col:DWORD
 ShiftPieceLR PROTO STDCALL off_set:DWORD
 CheckAddr PROTO STDCALL row:DWORD, col:DWORD
+CompleteRowsCheck PROTO STDCALL
 
 
 ;;Struct Definitions

@@ -72,12 +72,77 @@ J_piece PIECE_STRUCT<1, 5, 0, 5, 0, 4, 0, 3>
 
 .CODE
 
+CompleteRowsCheck PROC USES ebx ecx edx esi edi
+
+
+
+
+CompleteRowsCheck ENDP
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;Takes the current dynamic piece and turns it into a static piece;;
 ;;Also sets curr_row and curr_col to -1;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-CementPiece PROC USES eax ebx ecx edx
+CementPiece PROC USES eax ebx ecx edx esi edi
+
+;;Need another 5x5 loop to go through all positions and set their type to 0
+;;ecx and edx will be the outer and inner loop counters
+;;esi and edi will hold the full row/col positions respectively
+
+    mov ecx, -2
+
+L1:
+    cmp ecx, 2
+    jg END1
+
+        mov edx, -2
+
+    L2:
+        cmp edx, 2
+        jg END2
+
+            ;;Inner loop body
+            ;;Calculat the full row col addresses
+            mov esi, curr_row
+            add esi, ecx
+            mov edi, curr_col
+            add edi, edx
+
+            ;;Check to make sure this address is in bounds
+            invoke CheckAddr, esi, edi
+            cmp eax, 0
+            je END3
+
+            ;;Must be a valid address, look-up the block type
+            invoke GetBoardLocType, esi, edi
+            
+            ;;If the board type is not 1, we don't care
+            cmp eax, 1
+            jne END3
+
+            ;;We're here, so we must be looking at an active piece
+            ;;Just set the piece type to 0 and continue
+            invoke SetBoardLocType, esi, edi, 0
+
+    END3:
+        inc edx
+        jmp L2
+
+END2:
+    inc ecx
+    jmp L1
+
+END1:
+
+    ;;Set curr_row and curr_col to -1
+    mov curr_row, -1
+    mov curr_col, -1
+
+    ;;Check if there are any completed rows
+    invoke CompleteRowsCheck
+    
+    ret
 
 
 
@@ -167,7 +232,7 @@ AddPiece ENDP
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;Takes the row/col val and returns the value of the cell type at that location;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-GetBoardLocType PROC USES ebx row:DWORD, col:DWORD
+GetBoardLocType PROC USES ebx edx row:DWORD, col:DWORD
 
     mov eax, col
     mov ebx, 24
@@ -347,8 +412,6 @@ L1: ;;Outer 5x5 loop check
             cmp eax, 0
             je CEMENT ;;Then we need to cement it
 
-            
-
 
             ;;All is well, continue to next loop iteration
             jmp END3
@@ -381,7 +444,7 @@ UpdateBoard ENDP
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;Shifts a single board block down by 1;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-ShiftBlockDown PROC USES eax ebx row:DWORD, col:DWORD
+ShiftBlockDown PROC USES eax ebx edx row:DWORD, col:DWORD
 
     ;;Addr calculation
     mov eax, col
@@ -402,7 +465,7 @@ ShiftBlockDown ENDP
 ;;    Also increments curr_row     ;; 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-ShiftPieceDown PROC USES eax ebx ecx edx esi
+ShiftPieceDown PROC USES ebx ecx edx esi edi
 
     ;;Need to start search grid from bottom left, row offset > 0 and col offset < 0
     mov edi, 2
@@ -473,7 +536,7 @@ ShiftPieceDown ENDP
 ;;Left if dir is 0, right otherwise;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-ShiftPiece PROC USES eax ebx ecx edx esi dir:BYTE
+ShiftPiece PROC USES eax ebx ecx edx esi edi dir:BYTE
 
     LOCAL off_set:DWORD
 
@@ -641,7 +704,7 @@ ShiftPieceLR ENDP
 ;;clockwise if dir is 0, counterclockwise otherwise;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-RotatePiece PROC USES eax ebx ecx edx dir:BYTE
+RotatePiece PROC USES eax ebx ecx edx esi edi dir:BYTE
 
 ;;Need to define rotation matricies and use them with forloop for this function
 

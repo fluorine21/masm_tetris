@@ -26,12 +26,7 @@ include graphics.inc
 	
 .DATA
 
-;; If you need to, you can place global variables here
 
-
-bul1 SPRITE<100, 100, 0, 0, 0, bullet>
-
-tur1 SPRITE<200, 200, 0, 0, 0, turtle>
 
 
 .CODE
@@ -42,11 +37,24 @@ CheckIntersect PROC USES ebx ecx oneX:DWORD, oneY:DWORD, oneBitmap:PTR EECS205BI
 
 CheckIntersect ENDP
 
-GameInit PROC
+GameInit PROC USES ebx 
 
 
 	invoke UpdateBoard
-	invoke UpdateBoard
+
+	mov ebx, 0
+
+	L1:
+	cmp ebx, 30
+	jg END1
+
+		invoke UpdateBoard
+
+	inc ebx
+	jmp L1
+
+END1:
+
 	
 	ret         ;; Do not delete this line!!!
 GameInit ENDP
