@@ -20,8 +20,8 @@ include tetris.inc
 ;;Upper half of the word is the state, lower half of the word is the color
 ;;Grid size is 24 rows 10 cols, so we'll store it as effective addr = col*24 + row
 ;;Starting upper left moving down
-;;Initializing with 0ffffh to create white background and empty type field
-tetris_board WORD (24*10) DUP (0ffffh)
+;;Initializing with BACKGROUND_CELL to create white background and empty type field
+tetris_board WORD (24*10) DUP (BACKGROUND_CELL)
 
 ;;States:
 ;;-1 = empty
@@ -456,7 +456,7 @@ ShiftBlockDown PROC USES eax ebx edx row:DWORD, col:DWORD
     add eax, row
 
     movsx ebx, [tetris_board + (eax * 2)] ;; ebx holds the value we need to write to one below
-    mov [tetris_board + (eax * 2)], 0ffffh ;;overwrite old spot with a -1
+    mov [tetris_board + (eax * 2)], BACKGROUND_CELL ;;overwrite old spot with a -1
     inc eax
     mov [tetris_board + (eax * 2)], bx ;;move the block down 1
     ret
@@ -810,9 +810,141 @@ RotatePiece ENDP
 
 RotatePieceLR PROC USES eax ebx ecx edx esi edi dir:DWORD
 
+    LOCAL newGrid[25]:DWORD
+
+    ;;This is temp storage for a cell value
+    LOCAL tempCell:DWORD
 
 
-    ret
+    ;;Make a 5x5 loop with ebx and ecx as loop conters
+    mov ebx, -2
+
+    L1:
+    cmp ebx, 2
+    jg END0
+
+        mov ecx, -2
+        L2:
+        cmp ecx, 2
+        jg END1
+
+            ;;Loop body
+
+            ;;First we need to get the current cell to see if it is active
+            mov esi, curr_row
+            add esi, ebx
+            mov edi, curr_col
+            add edi, ecx
+            invoke CheckAddr, esi, edi
+            cmp eax, 1
+            jne END3 ;; If this address is out of bounds then skip it
+
+            ;;Check the value at this cell
+            invoke GetBoardLocType, esi, edi
+            cmp eax, 1
+            jne END3 ;; If this cell does not contain an active piece then skip it
+
+            ;;This cell has an active piece, we need to compute the address of where it is going
+            cmp dir, 0
+            jne CCLOCK
+
+            ;;We are rotating clockwise
+            ;;eax is next row offset, edx is next col offset
+            ;;Clockwise: xn = y, yn = -x
+            mov eax, ecx
+            mov edx, ebx
+            neg edx
+            jmp CALC_END
+
+        CCLOCK:
+
+            ;;We are rotating clockwise
+            ;;eax is next row offset, edx is next col offset
+            ;;Conterclockwise: xn = -y, yn = x
+            mov eax, ecx
+            neg eax
+            mov edx, ebx
+
+        CALC_END:
+
+            ;;Save the value of the old cell
+            invoke GetBoardLoc, esi, edi
+            mov tempCell, eax
+
+            ;;eax and edx contain the new offsets we need to use to rotate the piece
+            ;;Need to use them to calculate the matrix address
+            ;;Address defined as ((col+2)*5) + row + 2
+            mov esi, eax
+            mov edi, edx
+            mov eax, 2
+            add eax, edi
+            imul eax, 5
+            add eax, esi
+            add eax, 2
+
+            ;;store the value of tempCell at newGrid[eax]
+            mov esi, tempCell
+            mov [newGrid + (eax * 4)], esi
+
+        END3:
+        inc ecx
+        jmp L2
+    END1:
+
+    inc ebx
+    jmp L1
+END0:
+
+;;Now we need to do another 5x5 loop to actually write the grid
+
+   mov ebx, -2
+   L3:
+   cmp ebx, 2
+   jg END4
+
+        mov ecx, -2
+        L4:
+        cmp ecx, 2
+        jg END5:
+
+            ;;Loop body
+
+            ;;First we need to get the current cell to see if it is active
+            mov esi, curr_row
+            add esi, ebx
+            mov edi, curr_col
+            add edi, ecx
+            invoke CheckAddr, esi, edi
+            cmp eax, 1
+            jne END6 ;; If this address is out of bounds then skip it
+
+            ;;Address must be in bounds, check if this value is a background cell
+            ;;Address defined as ((col+2)*5) + row + 2
+            mov eax, ecx
+            add eax, 2
+            imul eax, 5
+            add eax, ebx
+            add eax, 2
+
+            mov edx, [newGrid + (eax * 4)]
+            cmp dx, BACKGROUND_CELL
+            je END6 ;;Skip if this is a background cell
+
+            ;;Must be a good cell, copy it into the grid
+            invoke SetGridLoc, esi, edi, edx
+
+        END6:
+        inc ecx
+        jmp L4
+    END5:
+    inc ebx    
+    jmp L3
+END4:
+
+    
+ret
+
+    
 RotatePieceLR ENDP
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

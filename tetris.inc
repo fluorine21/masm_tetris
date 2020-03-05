@@ -38,3 +38,4 @@ PIECE_STRUCT TYPEDEF _PIECE_STRUCT
 
 TICK_CYCLES equ 4294967295 ;; Must be in number of CPU clock cycles
 TICK_MAX equ 10 ;;maximum number of cycle ticks before UpdateBoard is called
+BACKGROUND_CELL equ 0ffffh
