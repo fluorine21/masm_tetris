@@ -172,8 +172,8 @@ AddPiece PROC USES eax ebx ecx edx esi edi
     div ebx ;; result is in edx
 
     ;;Store a random color
-    ;;mov color, eax
-    mov color, 0aah
+    mov color, eax
+    ;;mov color, 0aah
 
     ;;LTIZSOJ
 
@@ -817,6 +817,13 @@ RotatePieceLR PROC USES eax ebx ecx edx esi edi dir:DWORD
     LOCAL tempCell:DWORD
 
 
+    ;;Don't try rotating if we're close to the top
+    cmp curr_row, 3
+    jg CONT
+    ret
+
+CONT:
+
     ;;Make a 5x5 loop with ebx and ecx as loop conters
     mov ebx, -2
 
@@ -893,6 +900,8 @@ RotatePieceLR PROC USES eax ebx ecx edx esi edi dir:DWORD
     jmp L1
 END0:
 
+;;Here we need to remove the old piece from the board
+
 ;;Now we need to do another 5x5 loop to actually write the grid
 
    mov ebx, -2
@@ -932,7 +941,19 @@ END0:
             cmp eax, 0
             je END6 ;; don't overwrite if this cell is stationary
 
+            ;;Check if we're about to write a stationary cell
+            cmp dh, 0
+            jne CASE1 ;; Don't bother checking special case if this cell is not stationary
 
+            ;;If the destination for this stationary cell was an active cell
+            invoke GetBoardLocType, esi, edi
+            cmp eax, 1
+            jne END6 ;; If the cell wasn;t active don't bother overwriting it
+
+            ;;Make sure we overwrite with an empty cell
+            mov edx, BACKGROUND_CELL
+
+            CASE1:
             ;;Must be a good cell that isnt overwriting a stationary cell 
             ;;copy it into the grid
             invoke SetBoardLoc, esi, edi, edx
