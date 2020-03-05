@@ -559,7 +559,6 @@ END_CHECK:
 
 ;;edi will be outer loop, ebx will be inner loop
     mov edi, -2
-    mov ebx, -2
 
 L1: ;;Outer loop check
     cmp edi, 2
@@ -603,7 +602,7 @@ L1: ;;Outer loop check
             je SKIP_SHIFT
 
             ;;If we're here, we need to load in the piece and check the value
-            invoke GetBoardLoc, ecx, esi
+            invoke GetBoardLocType, ecx, esi
 
             cmp eax, 0 ;;If eax has a 0 in it, then there is a static piece adjacent to the dynamic piece
             je SKIP_SHIFT
