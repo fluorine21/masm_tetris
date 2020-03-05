@@ -68,6 +68,22 @@ SKIP_A:
 	invoke ShiftPiece, 1
 
 SKIP_D:
+	
+	;;If the 'W" key is being pressed
+	cmp KeyPress, VK_W
+	jne SKIP_W
+
+	invoke RotatePiece, 0
+
+SKIP_W:
+
+	;;If the 'S' key is being pressed
+	cmp KeyPress, VK_S
+	jne SKIP_S
+
+	invoke RotatePiece, 1
+
+SKIP_S:
 
 
 	ret

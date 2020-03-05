@@ -73,6 +73,9 @@ TICK_HIGH DWORD 0
 TICK_LOW DWORD 0
 TICK_COUNT DWORD 0
 
+;;Grid for rotation
+newGrid DWORD 25 DUP (0)
+
 .CODE
 
 CompleteRowsCheck PROC USES ebx ecx edx esi edi
@@ -783,9 +786,9 @@ RotatePiece PROC USES eax ebx ecx edx esi edi dir:DWORD
             cmp eax, 1
             jne SKIP_ROT
 
-            ;;Check to see if there is an active piece at this address
+            ;;Check to see if there is an cemented piece at this address
             invoke GetBoardLocType, R_N, C_N
-            cmp eax, 1
+            cmp eax, 0
             je SKIP_ROT
 
             ;;Must be able to rotate this particular cell
@@ -809,8 +812,6 @@ RotatePiece ENDP
 
 
 RotatePieceLR PROC USES eax ebx ecx edx esi edi dir:DWORD
-
-    LOCAL newGrid[25]:DWORD
 
     ;;This is temp storage for a cell value
     LOCAL tempCell:DWORD
@@ -839,12 +840,7 @@ RotatePieceLR PROC USES eax ebx ecx edx esi edi dir:DWORD
             cmp eax, 1
             jne END3 ;; If this address is out of bounds then skip it
 
-            ;;Check the value at this cell
-            invoke GetBoardLocType, esi, edi
-            cmp eax, 1
-            jne END3 ;; If this cell does not contain an active piece then skip it
-
-            ;;This cell has an active piece, we need to compute the address of where it is going
+            ;;This cell is in bounds, we need to compute the address of where it is going
             cmp dir, 0
             jne CCLOCK
 
@@ -868,8 +864,10 @@ RotatePieceLR PROC USES eax ebx ecx edx esi edi dir:DWORD
         CALC_END:
 
             ;;Save the value of the old cell
+            push eax
             invoke GetBoardLoc, esi, edi
             mov tempCell, eax
+            pop eax
 
             ;;eax and edx contain the new offsets we need to use to rotate the piece
             ;;Need to use them to calculate the matrix address
@@ -905,7 +903,7 @@ END0:
         mov ecx, -2
         L4:
         cmp ecx, 2
-        jg END5:
+        jg END5
 
             ;;Loop body
 
@@ -918,7 +916,7 @@ END0:
             cmp eax, 1
             jne END6 ;; If this address is out of bounds then skip it
 
-            ;;Address must be in bounds, check if this value is a background cell
+            ;;Address must be in bounds
             ;;Address defined as ((col+2)*5) + row + 2
             mov eax, ecx
             add eax, 2
@@ -926,12 +924,18 @@ END0:
             add eax, ebx
             add eax, 2
 
+            ;;Value we need to write to this location is in edx
             mov edx, [newGrid + (eax * 4)]
-            cmp dx, BACKGROUND_CELL
-            je END6 ;;Skip if this is a background cell
 
-            ;;Must be a good cell, copy it into the grid
-            invoke SetGridLoc, esi, edi, edx
+            ;;Check if at this address there is a stationary cell
+            invoke GetBoardLocType, esi, edi
+            cmp eax, 0
+            je END6 ;; don't overwrite if this cell is stationary
+
+
+            ;;Must be a good cell that isnt overwriting a stationary cell 
+            ;;copy it into the grid
+            invoke SetBoardLoc, esi, edi, edx
 
         END6:
         inc ecx
