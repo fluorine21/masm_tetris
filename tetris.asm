@@ -708,12 +708,112 @@ ShiftPieceLR ENDP
 ;;clockwise if dir is 0, counterclockwise otherwise;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-RotatePiece PROC USES eax ebx ecx edx esi edi dir:BYTE
+RotatePiece PROC USES eax ebx ecx edx esi edi dir:DWORD
 
-;;Need to define rotation matricies and use them with forloop for this function
+
+    ;;Clockwise: xn = y, yn = -x
+    ;;Conterclockwise: xn = -y, yn = x
+
+    ;;These hold the future location of a cell after rotation
+    LOCAL R_N:DWORD, C_N:DWORD
+
+
+    ;;Make a 5x5 loop with ebx and ecx as loop conters
+    mov ebx, -2
+
+    L1:
+    cmp ebx, 2
+    jg END0
+
+        mov ecx, -2
+        L2:
+        cmp ecx, 2
+        jg END1
+
+            ;;Loop body
+
+            ;;First we need to get the current cell to see if it is active
+            mov esi, curr_row
+            add esi, ebx
+            mov edi, curr_col
+            add edi, ecx
+            invoke CheckAddr, esi, edi
+            cmp eax, 1
+            jne END3 ;; If this address is out of bounds then skip it
+
+            ;;Check the value at this cell
+            invoke GetBoardLocType, esi, edi
+            cmp eax, 1
+            jne END3 ;; If this cell does not contain an active piece then skip it
+
+            ;;This cell has an active piece, we need to compute the address of where it is going
+            cmp dir, 0
+            jne CCLOCK
+
+            ;;We are rotating clockwise
+            ;;eax is next row offset, edx is next col offset
+            ;;Clockwise: xn = y, yn = -x
+            mov eax, ecx
+            mov edx, ebx
+            neg edx
+            jmp CALC_END
+
+        CCLOCK:
+
+            ;;We are rotating clockwise
+            ;;eax is next row offset, edx is next col offset
+            ;;Conterclockwise: xn = -y, yn = x
+            mov eax, ecx
+            neg eax
+            mov edx, ebx
+
+        CALC_END:
+
+            ;;Don't need esi or edi any more
+            mov esi, curr_row
+            mov R_N, esi
+            add R_N, eax
+            mov esi, curr_col
+            mov C_N, esi
+            add C_N, edx
+
+            ;;R_N and C_N now contain the address of our destination
+            ;;Check to see if the address is in bounds
+            invoke CheckAddr, R_N, C_N
+            cmp eax, 1
+            jne SKIP_ROT
+
+            ;;Check to see if there is an active piece at this address
+            invoke GetBoardLocType, R_N, C_N
+            cmp eax, 1
+            je SKIP_ROT
+
+            ;;Must be able to rotate this particular cell
+
+        END3:
+        inc ecx
+        jmp L2
+    END1:
+
+    inc ebx
+    jmp L1
+END0:
+
+    ;;If we're here, we can safetly rotate the piece
+    invoke RotatePieceLR, dir
+
+SKIP_ROT:
 
     ret
 RotatePiece ENDP
+
+
+RotatePieceLR PROC USES eax ebx ecx edx esi edi dir:DWORD
+
+
+
+    ret
+RotatePieceLR ENDP
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;Checks to make sure the address is in bounds, returns 1 if yes;;

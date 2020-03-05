@@ -4,7 +4,7 @@ UpdateBoard PROTO STDCALL
 ShiftPiece PROTO STDCALL dir:BYTE
 AddPiece PROTO STDCALL 
 CementPiece PROTO STDCALL 
-RotatePiece PROTO STDCALL dir:BYTE
+RotatePiece PROTO STDCALL dir:DWORD
 AddPiece PROTO STDCALL 
 GetBoardLoc PROTO STDCALL row:DWORD, col:DWORD
 GetBoardLocType PROTO STDCALL row:DWORD, col:DWORD
@@ -17,6 +17,7 @@ ShiftPieceLR PROTO STDCALL off_set:DWORD
 CheckAddr PROTO STDCALL row:DWORD, col:DWORD
 CompleteRowsCheck PROTO STDCALL
 GameTick PROTO STDCALL
+RotatePieceLR PROTO STDCALL dir:DWORD
 
 ;;Struct Definitions
 
