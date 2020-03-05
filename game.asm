@@ -26,7 +26,7 @@ include graphics.inc
 	
 .DATA
 
-
+LastKeyPress DWORD 0
 
 
 .CODE
@@ -36,6 +36,43 @@ CheckIntersect PROC USES ebx ecx oneX:DWORD, oneY:DWORD, oneBitmap:PTR EECS205BI
 	ret
 
 CheckIntersect ENDP
+
+
+KeyboardDispatch PROC USES eax ebx ecx edx esi edi
+	
+	;;Check to see if the same key is still being pressed
+	mov eax, KeyPress
+	cmp eax, LastKeyPress
+	jne CONT
+	ret ;;Just return if this key is still being pressed
+
+
+
+CONT:
+	mov eax, KeyPress
+	mov LastKeyPress, eax
+
+	;;If 'A' key is being pressed
+	cmp KeyPress, VK_A
+	jne SKIP_A
+
+	;;A key is being pressed, need to shift left (0)
+	invoke ShiftPiece, 0
+
+SKIP_A:
+
+	;;If the 'D' key is being pressed
+	cmp KeyPress, VK_D
+	jne SKIP_D
+
+	invoke ShiftPiece, 1
+
+SKIP_D:
+
+
+	ret
+
+KeyboardDispatch ENDP
 
 GameInit PROC USES ebx 
 
@@ -53,6 +90,7 @@ GameInit ENDP
 
 GamePlay PROC
 
+	invoke KeyboardDispatch
 	invoke GameTick
 	invoke DrawBoard
 

@@ -241,7 +241,7 @@ GetBoardLocType PROC USES ebx edx row:DWORD, col:DWORD
     mov ebx, 24
     mul ebx
     add eax, row
-    xor ebx, ebx
+
     movsx ebx, [tetris_board + (eax * 2)]
     sar ebx, 8 ;; get rid of the color value, arithmetic shift to preserve leading ones if cell is empty
     mov eax, ebx
@@ -268,7 +268,7 @@ GetBoardLoc ENDP
 ;;Sets the entire cell of a specific row col board location;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-SetBoardLoc PROC USES ebx ecx edx row:DWORD, col:DWORD, val:DWORD
+SetBoardLoc PROC USES eax ebx ecx edx row:DWORD, col:DWORD, val:DWORD
 
     mov eax, col
     mov ebx, 24
@@ -585,18 +585,14 @@ L1: ;;Outer loop check
 
             ;;Not trying to read from a cell that is out of bounds
             ;;Now we need to check the current cell value and make sure it corresponds to the active piece
-            invoke GetBoardLoc, ecx, edx
+            invoke GetBoardLocType, ecx, edx
 
             ;;Result is in eax
-            cmp eax, 0
-            je OUT_OF_BOUNDS ;;skip if this cell is static
-            cmp eax, -1
-            je OUT_OF_BOUNDS ;;Skip if this cell is empty
+            cmp eax, 1 ;;Skip this ine if it's not an active piece
+            jne OUT_OF_BOUNDS
 
             ;;We're here, so the cell must contain an active piece
             ;;Add the col offset to edx and check to see if it's in bounds
-
-            ;;TODO
 
             mov esi, edx
             add esi, off_set
@@ -629,6 +625,8 @@ END1: ;;End of checking loop
     ;;If we got here, then we need to shift the piece left or right
     
     invoke ShiftPieceLR, off_set
+    mov ebx, off_set
+    add curr_col, ebx
 
 SKIP_SHIFT:
 
@@ -645,30 +643,30 @@ ShiftPieceLR PROC USES eax ebx ecx edx esi edi off_set:DWORD
     ;;edi and ebx will be the outer and inner loop variables
 
     mov edi, -2
-    mov ebx, -2
 
     L1:
     cmp edi, 2
     jg RT
 
         mov ebx, -2
+
         L2: cmp ebx, 2
         jg END1
 
-            mov ecx, curr_row
-            ;;To calculate the current row, we need to check off_set
-            ;;If offset is -1 (left), then we need to add edi to curr_row, otherwise subtract
+            mov edx, curr_col
+            ;;To calculate the current col, we need to check off_set
+            ;;If offset is -1 (left), then we need to add ebx to curr_col, otherwise subtract
             cmp off_set, -1
             jne SUB_OFF
-            add ecx, edi
+            add edx, ebx
             jmp END_OFF
 SUB_OFF:
-            sub ecx, edi
+            sub edx, ebx
 END_OFF:
 
-            ;;Now calculate the current column
-            mov edx, curr_col
-            add edx, ebx
+            ;;Now calculate the current row
+            mov ecx, curr_row
+            add ecx, edi
 
             ;;Do the constraint checking to make sure we're in bounds
             invoke CheckAddr, ecx, edx
@@ -677,14 +675,17 @@ END_OFF:
             cmp eax, 1
             jne END2
 
-            ;;Address is good, we just need to move the current value over by off_set and write a 0 to the old location
-            invoke GetBoardLoc, ecx, edx
+            ;;Check if this is an active piece
+            invoke GetBoardLocType, ecx, edx
+            cmp eax, 1
+            jne END2 ;; If this isn't an active piece then skip it
 
+            invoke GetBoardLoc, ecx, edx;;Save the old location value
             mov esi, eax ;;Save eax
 
             invoke SetBoardLoc, ecx, edx, -1
 
-            add ecx, off_set
+            add edx, off_set
             
             invoke SetBoardLoc, ecx, edx, esi
 
@@ -695,7 +696,8 @@ END_OFF:
         jmp L2
 
     END1:
-    inc eax
+    inc edi
+    jmp L1
 
 RT:
     ret
