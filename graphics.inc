@@ -11,3 +11,8 @@ CELL_PAD equ 1 ;; number of pixels between each cell
 ;;Offsets for drawing the board
 R_OFFSET equ 30
 C_OFFSET equ 10
+
+;;Offsets for drawing the score
+SCORE_R equ 50
+SCORE_C equ 200
+

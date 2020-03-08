@@ -92,7 +92,8 @@ KeyboardDispatch ENDP
 
 GameInit PROC USES ebx 
 
-
+	;;Need to initially draw the score
+	invoke DrawScore, 0
 	invoke UpdateBoard
 
 	

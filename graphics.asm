@@ -14,8 +14,15 @@
 include blit.inc
 include tetris.inc
 include graphics.inc
+include game.inc
+include C:\masm32\include\user32.inc
+includelib masm32\lib\user32.lib
 
 .DATA
+
+;;This is used to print the score to the screen
+fmtStr BYTE "score: %d", 0
+outStr BYTE 256 DUP(0)
 
 
 .CODE
@@ -26,7 +33,19 @@ include graphics.inc
 
 DrawScore PROC USES ebx ecx edx esi edi score:DWORD
 
+    ;;First we need to flush the old score
+    ;;invoke FlushScore
 
+    ;;First we need to draw over the old score with black text
+    invoke DrawStr, offset outStr, SCORE_R, SCORE_C, 0
+
+    ;;Then we'll go ahead and draw in the new score
+    push score
+    push offset fmtStr
+    push offset outStr
+    call wsprintf
+    add esp, 12
+    invoke DrawStr, offset outStr, SCORE_C, SCORE_R, 255
     ret
 
 DrawScore ENDP
