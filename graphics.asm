@@ -20,6 +20,17 @@ include graphics.inc
 
 .CODE
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;Draws the current score;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+DrawScore PROC USES ebx ecx edx esi edi score:DWORD
+
+
+    ret
+
+DrawScore ENDP
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;Draws the entire tetris board on the screen;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -81,7 +81,7 @@ SKIP_W:
 	cmp KeyPress, VK_S
 	jne SKIP_S
 
-	invoke RotatePiece, 1
+	invoke UpdateBoard
 
 SKIP_S:
 

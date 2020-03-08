@@ -18,6 +18,7 @@ CheckAddr PROTO STDCALL row:DWORD, col:DWORD
 CompleteRowsCheck PROTO STDCALL
 GameTick PROTO STDCALL
 RotatePieceLR PROTO STDCALL dir:DWORD
+ShiftRowsDown PROTO STDCALL row_num:DWORD
 
 ;;Struct Definitions
 

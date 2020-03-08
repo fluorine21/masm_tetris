@@ -2,6 +2,7 @@
 ;;Functions
 DrawCell PROTO STDCALL x:DWORD, y:DWORD, color:DWORD
 DrawBoard PROTO STDCALL
+DrawScore PROTO STDCALL score:DWORD
 
 CELL_SIZE equ 16 ;; number of pixels used by a cell, should be power of 2
 CELL_SHIFT equ 4 ;; ammount we need to shift to multiply by cell size

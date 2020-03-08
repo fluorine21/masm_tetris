@@ -13,6 +13,7 @@
 ;;Arnoldo?
 ;;Test change
 include tetris.inc
+include graphics.inc
 
 .DATA
 
@@ -76,14 +77,111 @@ TICK_COUNT DWORD 0
 ;;Grid for rotation
 newGrid DWORD 25 DUP (0)
 
+;;Score counter 
+row_score DWORD 0
+
 .CODE
 
 CompleteRowsCheck PROC USES ebx ecx edx esi edi
+
+    ;;Need to loop through all of the rows and see if we find a complete row
+    ;;If we find a complete row, we need to shift the above rows down, and then call this function again
+
+    mov ebx, 23
+    L1:
+    cmp ebx, 0
+    jl END1
+
+        ;;Checking one of the rows here
+
+        mov ecx, 0
+        L2:
+        cmp ecx, 10
+        jge END2
+
+            ;;Check if this cell is static (0)
+            invoke GetBoardLocType, ebx, ecx
+            cmp eax, 0
+            jne END2 ;; If this cell isn't static then skip this row
+
+            ;;This cell must be static
+
+            ;;Check if we're on the last cell, if we are, we must be at the end of a complete row
+            cmp ecx, 9
+            jne END3 ;; Need to keep checking, just jump to end of inner loop
+
+            ;;If we're here, the row is complete
+            ;;Remove it, call this function again and return
+            invoke ShiftRowsDown, ebx
+
+            ;;Add one to our score and draw the new score
+            inc row_score
+            invoke DrawScore, row_score
+
+            invoke CompleteRowsCheck
+
+            ret
+
+        END3:
+        inc ecx
+        jmp L2
+        END2:
+
+    dec ebx
+    jmp L1
+    END1:
+
 
 
     ret
 
 CompleteRowsCheck ENDP
+
+
+ShiftRowsDown PROC USES ebx ecx edx esi edi row_num:DWORD
+
+    ;;make two loops, rows outside cols inside
+    ;;start at row_num and go to 0, copying everything down 1
+
+    mov ebx, row_num
+    L1:
+    cmp ebx, 0 
+    jl END1
+
+        mov ecx, 0
+        L2:
+        cmp ecx, 10
+        jge END2
+
+            ;;Inner loop body
+            mov edx, ebx
+            dec edx ;; copying from upper row
+
+            ;;Copy the cell value down one row
+            invoke GetBoardLoc, edx, ecx
+
+            cmp ebx, 0
+            jne SKIP_BACKGROUND
+
+            mov eax, 0
+            mov ax, BACKGROUND_CELL 
+
+            SKIP_BACKGROUND:
+
+            invoke SetBoardLoc, ebx, ecx, eax
+
+        inc ecx
+        jmp L2
+        END2:
+
+    dec ebx
+    jmp L1
+    END1:
+
+
+    ret
+
+ShiftRowsDown ENDP
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;Takes the current dynamic piece and turns it into a static piece;;
@@ -177,10 +275,8 @@ AddPiece PROC USES eax ebx ecx edx esi edi
 
     ;;LTIZSOJ
 
-    ;;Testing purposes to get the same shape every time
-    ;;An offset of 4 here is pointing to longwise I block?
-    ;;mov edx, 4
-    ;;This issue was caused by an incorrectly initialized S piece
+    ;;Need only I pieces
+    ;;mov edx, 1
 
     ;;Multiply the value in edx by the size of the piece struct
     mov eax, edx
@@ -818,7 +914,7 @@ RotatePieceLR PROC USES eax ebx ecx edx esi edi dir:DWORD
 
 
     ;;Don't try rotating if we're close to the top
-    cmp curr_row, 3
+    cmp curr_row, 1
     jg CONT
     ret
 
