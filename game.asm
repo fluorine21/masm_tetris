@@ -23,11 +23,18 @@ include keys.inc
 include tetris.inc
 include graphics.inc
 
+;;Music includes
+include \masm32\include\windows.inc
+include \masm32\include\winmm.inc
+includelib \masm32\lib\winmm.lib
+
 	
 .DATA
 
 LastKeyPress DWORD 0
 
+;;Path for the tetris music
+SndPath BYTE "music_fixed.wav", 0
 
 .CODE
 	
@@ -100,6 +107,9 @@ SKIP_Z:
 KeyboardDispatch ENDP
 
 GameInit PROC USES ebx 
+
+	;;Start the music
+	invoke PlaySound, offset SndPath, 0, SND_FILENAME OR SND_ASYNC OR SND_LOOP
 
 	;;Need to initially draw the score
 	invoke DrawScore, 0

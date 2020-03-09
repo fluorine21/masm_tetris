@@ -15,8 +15,8 @@ include blit.inc
 include tetris.inc
 include graphics.inc
 include game.inc
-include C:\masm32\include\user32.inc
-includelib masm32\lib\user32.lib
+include \masm32\include\user32.inc
+includelib \masm32\lib\user32.lib
 
 .DATA
 
