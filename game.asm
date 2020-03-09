@@ -46,7 +46,9 @@ KeyboardDispatch PROC USES eax ebx ecx edx esi edi
 	jne CONT
 	ret ;;Just return if this key is still being pressed
 
-
+	;;If the game over flag is set then skip these keys
+	cmp game_over, 1
+	je SKIP_S
 
 CONT:
 	mov eax, KeyPress
@@ -85,6 +87,13 @@ SKIP_W:
 
 SKIP_S:
 
+	;;Check if the Z key is being pressed
+	cmp KeyPress, VK_Z
+	jne SKIP_Z
+
+	invoke ResetGame
+
+SKIP_Z:
 
 	ret
 
@@ -95,11 +104,6 @@ GameInit PROC USES ebx
 	;;Need to initially draw the score
 	invoke DrawScore, 0
 	invoke UpdateBoard
-
-	
-
-END1:
-
 	
 	ret         ;; Do not delete this line!!!
 GameInit ENDP

@@ -19,6 +19,9 @@ CompleteRowsCheck PROTO STDCALL
 GameTick PROTO STDCALL
 RotatePieceLR PROTO STDCALL dir:DWORD
 ShiftRowsDown PROTO STDCALL row_num:DWORD
+GameOverCheck PROTO STDCALL
+GameOver PROTO STDCALL
+ResetGame PROTO STDCALL
 
 ;;Struct Definitions
 
@@ -40,3 +43,5 @@ PIECE_STRUCT TYPEDEF _PIECE_STRUCT
 TICK_CYCLES equ 4294967295 ;; Must be in number of CPU clock cycles
 TICK_MAX equ 10 ;;maximum number of cycle ticks before UpdateBoard is called
 BACKGROUND_CELL equ 0ffffh
+
+EXTERNDEF game_over:BYTE

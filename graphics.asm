@@ -24,8 +24,32 @@ includelib masm32\lib\user32.lib
 fmtStr BYTE "score: %d", 0
 outStr BYTE 256 DUP(0)
 
+gameOverStr BYTE "GAME OVER!", 0
+
 
 .CODE
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;Draws the game over message;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+DrawGameOver PROC USES ebx ecx edx
+
+    invoke DrawStr, offset gameOverStr, GAME_OVER_C, GAME_OVER_R, 255
+    ret
+
+DrawGameOver ENDP
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;Removes the game over message;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+RemoveGameOver PROC USES ebx ecx edx
+
+    invoke DrawStr, offset gameOverStr, GAME_OVER_C, GAME_OVER_R, 0
+    ret
+
+RemoveGameOver ENDP
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;Draws the current score;;
@@ -37,7 +61,7 @@ DrawScore PROC USES ebx ecx edx esi edi score:DWORD
     ;;invoke FlushScore
 
     ;;First we need to draw over the old score with black text
-    invoke DrawStr, offset outStr, SCORE_R, SCORE_C, 0
+    invoke DrawStr, offset outStr, SCORE_C, SCORE_R, 0
 
     ;;Then we'll go ahead and draw in the new score
     push score

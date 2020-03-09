@@ -14,6 +14,8 @@
 ;;Test change
 include tetris.inc
 include graphics.inc
+include keys.inc
+include game.inc
 
 .DATA
 
@@ -56,11 +58,11 @@ I_piece PIECE_STRUCT<0, 2, 0, 3, 0, 4, 0, 5>
 ;;T Piece coordinates (row,col): (0, 3), (1, 4), (0, 4), (0, 5)
 T_piece PIECE_STRUCT<0, 3, 1, 4, 0, 4, 0, 5>
 
-;;Z Piece coordinates (row,col): (2, 3), (1, 3), (1, 4), (0, 4)
-Z_piece PIECE_STRUCT<2, 3, 1, 3, 1, 4, 0, 4>
+;;Z Piece coordinates (row,col): (0, 3), (0, 4), (1, 4), (1, 5)
+Z_piece PIECE_STRUCT<0, 3, 0, 4, 1, 4, 1, 5>
 
-;;S Piece coordinates (row,col): (2, 4), (1, 4), (1, 3), (0, 3)
-S_piece PIECE_STRUCT<2, 4, 1, 4, 1, 3, 0, 3>
+;;S Piece coordinates (row,col): (1, 3), (1, 4), (0, 4), (0, 5)
+S_piece PIECE_STRUCT<1, 3, 1, 4, 0, 4, 0, 5>
 
 ;;O Piece coordinates (row,col): (1, 3), (0, 3), (1, 4), (0, 4)
 O_piece PIECE_STRUCT<1, 3, 0, 3, 1, 4, 0, 4>
@@ -80,7 +82,109 @@ newGrid DWORD 25 DUP (0)
 ;;Score counter 
 row_score DWORD 0
 
+;;Tells us if the game is over
+game_over BYTE 0
+
 .CODE
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;Checks if the game is over;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;Game is over if any cemented pieces appear in second row (1);;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+GameOverCheck PROC USES ebx ecx edx esi edi
+
+    ;;Loop through the second row
+    mov ebx, 0
+    L1:
+    cmp ebx, 10
+    jge END1
+
+        ;;Load the value here
+        invoke GetBoardLocType, 1, ebx
+        cmp eax, 0
+        jne END2 ;;If this isn't a cemented piece then we don't care
+
+        ;;Game over conditon has been met 
+        invoke GameOver
+
+
+    END2:
+
+    inc ebx
+    jmp L1
+    END1:
+
+
+    ret
+
+GameOverCheck ENDP
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;Displays game over message and calls reset when user presses esc;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+GameOver PROC USES ebx ecx edx esi edi
+
+    ;;Draw the game over message
+    invoke DrawGameOver
+
+    ;;set the game over flag
+    mov game_over, 1
+
+    ret
+
+GameOver ENDP
+
+;;;;;;;;;;;;;;;;;;;;;;;;;
+;;Resets the game state;;
+;;;;;;;;;;;;;;;;;;;;;;;;;
+
+ResetGame PROC USES ebx ecx edx
+
+    cmp game_over, 1 ;;If the game is actually over
+    je GAME_OVER
+    ret
+
+    GAME_OVER:
+    ;;Reset the game over flag
+    mov game_over, 0
+
+    ;;Remove the game over text
+    invoke RemoveGameOver
+
+    ;;Reset the row col pointers
+    mov curr_row, -1
+    mov curr_col, -1
+
+    ;;Reset the score counter
+    mov row_score, 0
+    ;;Draw the score
+    invoke DrawScore, 0
+
+    ;;Write a background pixel to all board locations
+    mov ebx, 0
+    L1:
+    cmp ebx, (24*10)
+    jge END1
+        
+        mov [tetris_board + (ebx * 2)], BACKGROUND_CELL
+
+    inc ebx
+    jmp L1
+    END1:
+
+
+    ;;Call UpdateBoard to add the first piece
+    invoke UpdateBoard
+    ret
+
+
+ResetGame ENDP
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;Checks if there are any completed rows that need to be removed;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 CompleteRowsCheck PROC USES ebx ecx edx esi edi
 
@@ -242,6 +346,9 @@ END1:
     ;;Set curr_row and curr_col to -1
     mov curr_row, -1
     mov curr_col, -1
+
+    ;;Check if the game is over
+    invoke GameOverCheck
 
     ;;Check if there are any completed rows
     invoke CompleteRowsCheck
@@ -442,6 +549,8 @@ UpdateBoard PROC USES eax ebx ecx edx esi edi
 ;;If the piece can be moved down (nothing below), then we just move it down
 ;;If the current row is -1, we need to spawn a piece
 
+
+NOT_GAME_OVER:
 
     ;;If we need to add a piece
     cmp curr_row, -1
@@ -998,6 +1107,8 @@ END0:
 
 ;;Here we need to remove the old piece from the board
 
+invoke RemoveOldPiece
+
 ;;Now we need to do another 5x5 loop to actually write the grid
 
    mov ebx, -2
@@ -1068,6 +1179,17 @@ ret
     
 RotatePieceLR ENDP
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;Removes the old un-rotated piece from the board;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+RemoveOldPiece PROC USES ebx ecx edx esi edi
+
+
+    ret
+RemoveOldPiece ENDP
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;Checks to make sure the address is in bounds, returns 1 if yes;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1095,6 +1217,12 @@ CheckAddr ENDP
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 GameTick PROC USES eax ebx ecx edx esi edi
+
+    cmp game_over, 1 ;;If we're in the game over state just return
+    jne NOT_GAME_OVER
+    ret
+
+    NOT_GAME_OVER:
 
     ;;If TICK_HIGH is 0, then this is the first function call
     ;;We need to set up the tick counter

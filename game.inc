@@ -20,6 +20,8 @@ MK_SHIFT    = 0004h  ;; The SHIFT key is down.
 MK_XBUTTON1 = 0020h  ;; The first X button is down.
 MK_XBUTTON2 = 0040h  ;; The second X button is down.
 
+include blit.inc
+
 ;; Library Functions
 BlackStarField	PROTO
 DrawStr PROTO myStr:PTR BYTE, x:DWORD, y:DWORD, color:DWORD
@@ -35,7 +37,6 @@ EXTERNDEF KeyPress:DWORD
 GameInit PROTO
 GamePlay PROTO
 CheckIntersect PROTO oneX:DWORD, oneY:DWORD, oneBitmap:PTR EECS205BITMAP, twoX:DWORD, twoY:DWORD, twoBitmap:PTR EECS205BITMAP 
-
 
 ;;Sprite STRUCT
 _SPRITE STRUCT
