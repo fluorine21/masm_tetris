@@ -101,7 +101,7 @@ GameOverCheck PROC USES ebx ecx edx esi edi
     jge END1
 
         ;;Load the value here
-        invoke GetBoardLocType, 1, ebx
+        invoke GetBoardLocType, 4, ebx
         cmp eax, 0
         jne END2 ;;If this isn't a cemented piece then we don't care
 

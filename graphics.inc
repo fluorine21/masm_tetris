@@ -5,6 +5,9 @@ DrawBoard PROTO STDCALL
 DrawScore PROTO STDCALL score:DWORD
 DrawGameOver PROTO STDCALL
 RemoveGameOver PROTO STDCALL
+DrawGamePaused PROTO STDCALL
+RemoveGamePaused PROTO STDCALL
+
 
 CELL_SIZE equ 16 ;; number of pixels used by a cell, should be power of 2
 CELL_SHIFT equ 4 ;; ammount we need to shift to multiply by cell size
@@ -21,4 +24,8 @@ SCORE_C equ 200
 ;;Offsets for drawing game over message
 GAME_OVER_R equ 70
 GAME_OVER_C equ 200
+
+;;Offsets for drawing game paused message
+GAME_PAUSED_R equ 90
+GAME_PAUSED_C equ 200
 

@@ -26,8 +26,33 @@ outStr BYTE 256 DUP(0)
 
 gameOverStr BYTE "GAME OVER!", 0
 
+gamePausedStr BYTE "GAME PAUSED", 0
+
 
 .CODE
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;Draws the game paused message;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+DrawGamePaused PROC USES ebx ecx edx
+
+    invoke DrawStr, offset gamePausedStr, GAME_PAUSED_C, GAME_PAUSED_R, 255
+    ret
+
+DrawGamePaused ENDP
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;Removes the game paused message;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+RemoveGamePaused PROC USES ebx ecx edx
+
+    invoke DrawStr, offset gamePausedStr, GAME_PAUSED_C, GAME_PAUSED_R, 0
+    ret
+
+RemoveGamePaused ENDP
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;Draws the game over message;;
@@ -84,7 +109,7 @@ DrawBoard PROC USES ebx ecx edx esi edi
 
     ;;ebx and ecx will be loop counters
 
-    mov ebx, 0 ;;row
+    mov ebx, 4 ;;row, start at 4 to have the correct size
     mov ecx, 0 ;;col
 
 
