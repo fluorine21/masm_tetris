@@ -17,6 +17,7 @@ include graphics.inc
 include game.inc
 include \masm32\include\user32.inc
 includelib \masm32\lib\user32.lib
+include images.inc
 
 .DATA
 
@@ -64,6 +65,16 @@ DrawGameOver PROC USES ebx ecx edx
     ret
 
 DrawGameOver ENDP
+
+;;;;;;;;;;;;;;;;;;;;;;;;;
+;;Draws the Tetris logo;;
+;;;;;;;;;;;;;;;;;;;;;;;;;
+
+DrawTetrisLogo PROC USES ebx ecx edx
+
+    invoke BasicBlit, ADDR tetris_logo, TETRIS_LOGO_C, TETRIS_LOGO_R
+    ret
+DrawTetrisLogo ENDP
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;Removes the game over message;;

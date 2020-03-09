@@ -137,6 +137,9 @@ GameInit PROC USES ebx
 	;;Start the music
 	invoke PlaySound, offset SndPath, 0, SND_FILENAME OR SND_ASYNC OR SND_LOOP
 
+	;;Draw the logo
+	invoke DrawTetrisLogo
+
 	;;Need to initially draw the score
 	invoke DrawScore, 0
 	invoke UpdateBoard

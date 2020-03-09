@@ -7,6 +7,7 @@ DrawGameOver PROTO STDCALL
 RemoveGameOver PROTO STDCALL
 DrawGamePaused PROTO STDCALL
 RemoveGamePaused PROTO STDCALL
+DrawTetrisLogo PROTO STDCALL
 
 
 CELL_SIZE equ 16 ;; number of pixels used by a cell, should be power of 2
@@ -14,7 +15,7 @@ CELL_SHIFT equ 4 ;; ammount we need to shift to multiply by cell size
 CELL_PAD equ 1 ;; number of pixels between each cell
 
 ;;Offsets for drawing the board
-R_OFFSET equ 30
+R_OFFSET equ 50
 C_OFFSET equ 10
 
 ;;Offsets for drawing the score
@@ -22,10 +23,14 @@ SCORE_R equ 50
 SCORE_C equ 200
 
 ;;Offsets for drawing game over message
-GAME_OVER_R equ 70
+GAME_OVER_R equ 100
 GAME_OVER_C equ 200
 
 ;;Offsets for drawing game paused message
 GAME_PAUSED_R equ 90
 GAME_PAUSED_C equ 200
+
+;;Offsets for drawing tetris logo
+TETRIS_LOGO_R equ 30
+TETRIS_LOGO_C equ 50
 
