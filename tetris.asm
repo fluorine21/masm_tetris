@@ -1015,8 +1015,33 @@ SKIP_ROT:
     ret
 RotatePiece ENDP
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;Clears the newGrid array;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ClearNewGrid PROC USES ebx ecx
+
+    mov ebx, 0
+    L1:
+    cmp ebx, 25
+    jge END1
+
+        mov [newGrid + (ebx * 4)], 0
+
+    inc ebx
+    jmp L1
+    END1:
+    ret
+
+ClearNewGrid ENDP
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;Implements the actual rotation of a piece;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 RotatePieceLR PROC USES eax ebx ecx edx esi edi dir:DWORD
+
+
+
 
     ;;This is temp storage for a cell value
     LOCAL tempCell:DWORD
@@ -1028,6 +1053,9 @@ RotatePieceLR PROC USES eax ebx ecx edx esi edi dir:DWORD
     ret
 
 CONT:
+
+    ;;Clear the newGrid array
+    invoke ClearNewGrid
 
     ;;Make a 5x5 loop with ebx and ecx as loop conters
     mov ebx, -2
@@ -1052,7 +1080,12 @@ CONT:
             cmp eax, 1
             jne END3 ;; If this address is out of bounds then skip it
 
-            ;;This cell is in bounds, we need to compute the address of where it is going
+            ;;Check if the cell is active
+            invoke GetBoardLocType, esi, edi
+            cmp eax, 1
+            jne END3 ;; If it is inactive then skip it
+
+            ;;This cell is in bounds and is active, we need to compute the address of where it is going
             cmp dir, 0
             jne CCLOCK
 
@@ -1143,26 +1176,11 @@ invoke RemoveOldPiece
             ;;Value we need to write to this location is in edx
             mov edx, [newGrid + (eax * 4)]
 
-            ;;Check if at this address there is a stationary cell
-            invoke GetBoardLocType, esi, edi
-            cmp eax, 0
-            je END6 ;; don't overwrite if this cell is stationary
-
-            ;;Check if we're about to write a stationary cell
-            cmp dh, 0
-            jne CASE1 ;; Don't bother checking special case if this cell is not stationary
-
-            ;;If the destination for this stationary cell was an active cell
-            invoke GetBoardLocType, esi, edi
-            cmp eax, 1
-            jne END6 ;; If the cell wasn;t active don't bother overwriting it
-
-            ;;Make sure we overwrite with an empty cell
-            mov edx, BACKGROUND_CELL
-
-            CASE1:
-            ;;Must be a good cell that isnt overwriting a stationary cell 
-            ;;copy it into the grid
+            ;;Check if the cell is active
+            cmp dh, 1
+            jne END6 ;; Skip this cell if it is inactive
+            
+            ;;Cell must be active, write it into the board
             invoke SetBoardLoc, esi, edi, edx
 
         END6:
@@ -1184,8 +1202,26 @@ RotatePieceLR ENDP
 ;;Removes the old un-rotated piece from the board;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-RemoveOldPiece PROC USES ebx ecx edx esi edi
+RemoveOldPiece PROC USES eax ebx ecx edx esi edi
 
+    ;;Loop over the whole board and replace all active cells with the background cell
+    mov ebx, 0
+    L1:
+    cmp ebx, (24*10)
+    jge END1
+
+        ;;Check if this piece is active
+        mov ax, [tetris_board + (ebx * 2)]
+        cmp ah, 1
+        jne END2 ;; Skip if this cell is inactive
+
+        ;;Must be active, overrite with BACKGROUND_CELL
+        mov [tetris_board + (ebx * 2)], BACKGROUND_CELL
+
+    END2:
+    inc ebx
+    jmp L1
+    END1:
 
     ret
 RemoveOldPiece ENDP

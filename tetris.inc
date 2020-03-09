@@ -22,6 +22,8 @@ ShiftRowsDown PROTO STDCALL row_num:DWORD
 GameOverCheck PROTO STDCALL
 GameOver PROTO STDCALL
 ResetGame PROTO STDCALL
+RemoveOldPiece PROTO STDCALL
+
 
 ;;Struct Definitions
 
