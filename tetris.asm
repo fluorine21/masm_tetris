@@ -231,7 +231,7 @@ CompleteRowsCheck PROC USES ebx ecx edx esi edi
             ;;If the score is a multiple of 10 then reset it and increment the level
             mov eax, row_score
             xor edx, edx
-            mov esi, 10
+            mov esi, 9
             div esi
             cmp edx, 0
             jne L8
