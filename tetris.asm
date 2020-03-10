@@ -225,10 +225,10 @@ CompleteRowsCheck PROC USES ebx ecx edx esi edi
             ;;Remove it, call this function again and return
             invoke ShiftRowsDown, ebx
 
-            ;;If the score is a multiple of 20 then reset it and increment the level
+            ;;If the score is a multiple of 10 then reset it and increment the level
             mov eax, row_score
             xor edx, edx
-            mov esi, 20
+            mov esi, 10
             div esi
             cmp edx, 0
             jne L8
@@ -1298,7 +1298,6 @@ GameTick PROC USES eax ebx ecx edx esi edi
 SKIP_SETUP:
 
     rdtsc
-
     sub eax, TICK_LOW
     ;;If the counter has not been triggered
     cmp eax, TICK_CYCLES
@@ -1314,7 +1313,8 @@ SKIP_SETUP:
     mov TICK_LOW, eax
     mov TICK_HIGH, edx
 
-    cmp TICK_COUNT, TICK_MAX
+    invoke GetTickMax
+    cmp TICK_COUNT, eax
     jl RT
 
     ;;Reset the tick count
@@ -1335,8 +1335,9 @@ GameTick ENDP
 GetTickMax PROC USES ebx ecx edx
 
     mov ebx, level_num
+    ;;add ebx, 1
     dec ebx
-    shr ebx, 1
+    ;;shr ebx, 1
     mov eax, TICK_MAX
     sub eax, ebx
     ret
