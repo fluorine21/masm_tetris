@@ -134,6 +134,10 @@ DrawLevel ENDP
 
 DrawBoard PROC USES ebx ecx edx esi edi
 
+    ;;Draw the background first
+    invoke DrawBackground
+    invoke DrawTetrisLogo
+
     ;;Loop through the entire board, 24 rows, 10 cols
 
     ;;ebx and ecx will be loop counters
@@ -229,5 +233,70 @@ RT:
 
 DrawCell ENDP
 
+;;Draws the background;;
+
+DrawBackground PROC USES eax ebx ecx edx esi edi
+
+    LOCAL curr_r:DWORD, curr_c:DWORD
+
+    mov curr_r, 0
+    mov curr_c, 0
+
+    ;;Loop over the background pattern
+    ;;ebx is outer, ecx is inner
+    mov ebx, 0
+    L1:
+    cmp ebx, BACKGROUND_ROW_NUM
+    jge END1
+
+        mov ecx, 0
+        L2:
+        cmp ecx, BACKGROUND_COL_NUM
+        jge END2
+                
+                ;;Inner body
+                ;;check the status of background_tick
+                test background_tick, 1
+                jz INV_B
+
+                ;;Check if we're on an even row
+                test bl, 1
+                jz INV1
+
+                invoke BasicBlit, ADDR background_inv, curr_c, curr_r
+                jmp END7
+
+                INV1:
+                invoke BasicBlit, ADDR background, curr_c, curr_r
+                jmp END7
+
+                INV_B:
+
+                 ;;Check if we're on an even row
+                test bl, 1
+                jz INV2
+
+                invoke BasicBlit, ADDR background, curr_c, curr_r
+                jmp END7
+
+                INV2:
+                invoke BasicBlit, ADDR background_inv, curr_c, curr_r
+
+                END7:
+                add curr_c, 26
+
+        inc ecx
+        jmp L2
+
+
+    END2:
+    mov curr_c, 0
+    add curr_r, 6
+    inc ebx
+    jmp L1
+    END1:
+    ret
+
+DrawBackground ENDP
 
 END

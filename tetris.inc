@@ -47,3 +47,4 @@ TICK_MAX equ 10 ;;maximum number of cycle ticks before UpdateBoard is called
 BACKGROUND_CELL equ 0ffffh
 
 EXTERNDEF game_over:BYTE
+EXTERNDEF background_tick:BYTE

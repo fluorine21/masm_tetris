@@ -88,6 +88,9 @@ level_num DWORD 1
 ;;Tells us if the game is over
 game_over BYTE 0
 
+;;Tick for changing background
+background_tick BYTE 0
+
 
 .CODE
 
@@ -1322,6 +1325,7 @@ SKIP_SETUP:
 
     ;;Invoke UpdateBoard
     invoke UpdateBoard
+    inc background_tick
 
 
 RT:
@@ -1337,7 +1341,7 @@ GetTickMax PROC USES ebx ecx edx
     mov ebx, level_num
     ;;add ebx, 1
     dec ebx
-    ;;shr ebx, 1
+    shr ebx, 1
     mov eax, TICK_MAX
     sub eax, ebx
     ret
