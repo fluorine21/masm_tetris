@@ -11,11 +11,15 @@
       option casemap :none  ; case sensitive
 
 ;;Arnoldo?
-;;Test change
 include tetris.inc
 include graphics.inc
 include keys.inc
 include game.inc
+
+;;Music includes
+include \masm32\include\windows.inc
+include \masm32\include\winmm.inc
+includelib \masm32\lib\winmm.lib
 
 .DATA
 
@@ -91,6 +95,11 @@ game_over BYTE 0
 ;;Tick for changing background
 background_tick BYTE 0
 
+;;Path for the tetris music
+SndPath_t BYTE "music_fixed.wav", 0
+
+;;Path for losing music
+losePath BYTE "lose.wav", 0
 
 .CODE
 
@@ -139,6 +148,9 @@ GameOver PROC USES ebx ecx edx esi edi
     ;;set the game over flag
     mov game_over, 1
 
+    ;;Play the game over music
+    invoke PlaySound, offset losePath, 0, SND_FILENAME OR SND_ASYNC
+
     ret
 
 GameOver ENDP
@@ -184,9 +196,14 @@ ResetGame PROC USES ebx ecx edx
     jmp L1
     END1:
 
+    ;;Start the music again
+    invoke PlaySound, offset SndPath_t, 0, SND_FILENAME OR SND_ASYNC OR SND_LOOP
 
     ;;Call UpdateBoard to add the first piece
     invoke UpdateBoard
+
+
+
     ret
 
 

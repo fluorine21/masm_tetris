@@ -59,8 +59,16 @@ ml /I%MASMINCPATH% /c  /coff  /Cp images.asm
 
 if %errorlevel% neq 0 goto :error
 
+ml /I%MASMINCPATH% /c  /coff  /Cp tetris.asm
 
-link /SUBSYSTEM:WINDOWS  /LIBPATH:%MASMLIBPATH% game.obj blit.obj trig.obj lines.obj stars.obj libgame.obj images.obj
+if %errorlevel% neq 0 goto :error
+
+ml /I%MASMINCPATH% /c  /coff  /Cp graphics.asm
+
+if %errorlevel% neq 0 goto :error
+
+
+link /SUBSYSTEM:WINDOWS  /LIBPATH:%MASMLIBPATH% game.obj blit.obj trig.obj lines.obj stars.obj libgame.obj images.obj tetris.obj graphics.obj
 
 if %errorlevel% neq 0 goto :error
 
