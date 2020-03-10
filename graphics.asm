@@ -239,6 +239,16 @@ DrawBackground PROC USES eax ebx ecx edx esi edi
 
     LOCAL curr_r:DWORD, curr_c:DWORD
 
+    cmp game_over, 1
+    jne NOT_GAME_OVER;; if the game isn't over then draw the background
+
+    ;;If the game is over draw the skulls
+    invoke DrawSkulls
+    ret
+
+    NOT_GAME_OVER:
+
+
     mov curr_r, 0
     mov curr_c, 0
 
@@ -298,5 +308,48 @@ DrawBackground PROC USES eax ebx ecx edx esi edi
     ret
 
 DrawBackground ENDP
+
+
+DrawSkulls PROC USES eax ebx ecx edx
+
+    LOCAL curr_r:DWORD, curr_c:DWORD
+
+    mov curr_r, 0
+    mov curr_c, -9
+
+    ;;Loop over the background pattern
+    ;;ebx is outer, ecx is inner
+    mov ebx, 0
+    L1:
+    cmp ebx, BACKGROUND_ROW_NUM
+    jge END1
+
+        mov ecx, 0
+        L2:
+        cmp ecx, (BACKGROUND_COL_NUM - 1)
+        jge END2
+                
+                ;;Inner body
+                
+                invoke BasicBlit, ADDR skull, curr_c, curr_r
+
+                END7:
+                add curr_c, 32
+
+        inc ecx
+        jmp L2
+
+
+    END2:
+    mov curr_c, -9
+    add curr_r, 33
+    inc ebx
+    jmp L1
+    END1:
+    ret
+
+
+
+DrawSkulls ENDP
 
 END

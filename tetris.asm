@@ -235,6 +235,8 @@ CompleteRowsCheck PROC USES ebx ecx edx esi edi
             div esi
             cmp edx, 0
             jne L8
+            cmp row_score, 0
+            je L8 ;; Make sure the score isn't just 0
 
             ;;Must be a multiple of 20
             inc level_num

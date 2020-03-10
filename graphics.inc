@@ -10,6 +10,7 @@ RemoveGamePaused PROTO STDCALL
 DrawTetrisLogo PROTO STDCALL
 DrawLevel PROTO STDCALL level:DWORD
 DrawBackground PROTO STDCALL
+DrawSkulls PROTO STDCALL
 
 CELL_SIZE equ 16 ;; number of pixels used by a cell, should be power of 2
 CELL_SHIFT equ 4 ;; ammount we need to shift to multiply by cell size
