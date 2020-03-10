@@ -25,6 +25,9 @@ include images.inc
 fmtStr BYTE "score: %d", 0
 outStr BYTE 256 DUP(0)
 
+levelFmtStr BYTE "Level: %d", 0
+outLevel BYTE 256 DUP (0)
+
 gameOverStr BYTE "GAME OVER!", 0
 
 gamePausedStr BYTE "GAME PAUSED", 0
@@ -109,6 +112,21 @@ DrawScore PROC USES ebx ecx edx esi edi score:DWORD
     ret
 
 DrawScore ENDP
+
+;;Draws the current level;;
+DrawLevel PROC USES ebx ecx edx esi edi level:DWORD
+
+    invoke DrawStr, offset outLevel, LEVEL_C, LEVEL_R, 0
+
+    push level
+    push offset levelFmtStr
+    push offset outLevel
+    call wsprintf
+    add esp, 12
+    invoke DrawStr, offset outLevel, LEVEL_C, LEVEL_R, 255
+    ret
+
+DrawLevel ENDP
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;Draws the entire tetris board on the screen;;

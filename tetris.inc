@@ -23,7 +23,7 @@ GameOverCheck PROTO STDCALL
 GameOver PROTO STDCALL
 ResetGame PROTO STDCALL
 RemoveOldPiece PROTO STDCALL
-
+GetTickMax PROTO STDCALL
 
 ;;Struct Definitions
 

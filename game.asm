@@ -59,7 +59,7 @@ CONT:
 	mov LastKeyPress, eax
 
 	;;If the user wants to paus the game
-	cmp KeyPress, VK_R
+	cmp KeyPress, VK_P
 	jne SKIP_PAUSE
 
 	;;Check the pause state
@@ -104,13 +104,21 @@ SKIP_A:
 
 SKIP_D:
 	
-	;;If the 'W" key is being pressed
-	cmp KeyPress, VK_W
-	jne SKIP_W
+	;;If the 'E' key is being pressed
+	cmp KeyPress, VK_E
+	jne SKIP_E
 
 	invoke RotatePiece, 0
 
-SKIP_W:
+SKIP_E:
+
+	;;If the 'Q' key is being pressed
+	cmp KeyPress, VK_Q
+	jne SKIP_Q
+
+	invoke RotatePiece, 1
+
+SKIP_Q:
 
 	;;If the 'S' key is being pressed
 	cmp KeyPress, VK_S
@@ -142,6 +150,7 @@ GameInit PROC USES ebx
 
 	;;Need to initially draw the score
 	invoke DrawScore, 0
+	invoke DrawLevel, 1
 	invoke UpdateBoard
 	
 	ret         ;; Do not delete this line!!!

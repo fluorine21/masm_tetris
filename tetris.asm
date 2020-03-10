@@ -82,8 +82,12 @@ newGrid DWORD 25 DUP (0)
 ;;Score counter 
 row_score DWORD 0
 
+;;Level counter
+level_num DWORD 1
+
 ;;Tells us if the game is over
 game_over BYTE 0
+
 
 .CODE
 
@@ -159,8 +163,11 @@ ResetGame PROC USES ebx ecx edx
 
     ;;Reset the score counter
     mov row_score, 0
+    mov level_num, 1
+
     ;;Draw the score
     invoke DrawScore, 0
+    invoke DrawLevel, 1
 
     ;;Write a background pixel to all board locations
     mov ebx, 0
@@ -218,9 +225,26 @@ CompleteRowsCheck PROC USES ebx ecx edx esi edi
             ;;Remove it, call this function again and return
             invoke ShiftRowsDown, ebx
 
-            ;;Add one to our score and draw the new score
+            ;;If the score is a multiple of 20 then reset it and increment the level
+            mov eax, row_score
+            xor edx, edx
+            mov esi, 20
+            div esi
+            cmp edx, 0
+            jne L8
+
+            ;;Must be a multiple of 20
+            inc level_num
+            mov row_score, 0
+            jmp L9
+
+            L8:
             inc row_score
+
+            L9:
+
             invoke DrawScore, row_score
+            invoke DrawLevel, level_num
 
             invoke CompleteRowsCheck
 
@@ -1305,6 +1329,19 @@ RT:
 
 
 GameTick ENDP
+
+
+
+GetTickMax PROC USES ebx ecx edx
+
+    mov ebx, level_num
+    dec ebx
+    shr ebx, 1
+    mov eax, TICK_MAX
+    sub eax, ebx
+    ret
+
+GetTickMax ENDP
 
 
 
