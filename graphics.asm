@@ -33,6 +33,9 @@ gameOverStr BYTE "GAME OVER!", 0
 gamePausedStr BYTE "GAME PAUSED", 0
 
 
+colorTable BYTE 224, 28, (3 + 8), (224+28), (224+3), (28+3), 077h, 088h, 099h, 0aah, 0bbh, 0cch, 0ddh, 0eeh, 011h, 022h
+
+
 .CODE
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -193,9 +196,27 @@ DrawBoard ENDP
 ;;Draws a single cell at starting at position x,y, moving to +x -y;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-DrawCell PROC USES ebx ecx edx edi x:DWORD, y:DWORD, color:DWORD
+DrawCell PROC USES eax ebx ecx edx edi x:DWORD, y:DWORD, color:DWORD
 
     ;;Loop counters will be ebx for outer and ecx for inner
+
+    ;;If the color is 0xff, replace with 0x00
+    mov eax, color
+    cmp al, 0ffh
+    jne SKIP_BACK_REPLACE
+
+    ;;Replace the color with 0
+    mov color, 0
+    jmp L3
+
+    SKIP_BACK_REPLACE:
+
+    ;;Look up the corresponding color in the table and draw it
+    and eax, 15
+    movzx eax, [colorTable + eax]
+    mov color, eax
+
+    L3:
 
     mov ebx, 0
     mov ecx, 0

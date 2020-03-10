@@ -406,6 +406,12 @@ AddPiece PROC USES eax ebx ecx edx esi edi
     div ebx ;; result is in edx
 
     ;;Store a random color
+    ;;Make sure it isn't ff
+    cmp al, 0ffh
+    jne SKIP_COLOR_FIX
+    mov al, 001h
+
+    SKIP_COLOR_FIX:
     mov color, eax
     ;;mov color, 0aah
 
