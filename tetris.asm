@@ -50,25 +50,25 @@ curr_col DWORD -1
 ;;Stores the default locations for creating new pieces
 
 ;;L piece coordinates (row,col): (0, 3), (1, 3), (0, 4), (0, 5)
-L_piece PIECE_STRUCT<0, 3, 1, 3, 0, 4, 0, 5>
+L_piece PIECE_STRUCT<1, 3, 2, 3, 1, 4, 1, 5>
 
 ;;I Piece coordinates (row,col): (0, 2), (0, 3), (0, 4), (0, 5)
-I_piece PIECE_STRUCT<0, 2, 0, 3, 0, 4, 0, 5>
+I_piece PIECE_STRUCT<1, 2, 1, 3, 1, 4, 1, 5>
 
 ;;T Piece coordinates (row,col): (0, 3), (1, 4), (0, 4), (0, 5)
-T_piece PIECE_STRUCT<0, 3, 1, 4, 0, 4, 0, 5>
+T_piece PIECE_STRUCT<1, 3, 2, 4, 1, 4, 1, 5>
 
 ;;Z Piece coordinates (row,col): (0, 3), (0, 4), (1, 4), (1, 5)
-Z_piece PIECE_STRUCT<0, 3, 0, 4, 1, 4, 1, 5>
+Z_piece PIECE_STRUCT<1, 3, 1, 4, 2, 4, 2, 5>
 
 ;;S Piece coordinates (row,col): (1, 3), (1, 4), (0, 4), (0, 5)
-S_piece PIECE_STRUCT<1, 3, 1, 4, 0, 4, 0, 5>
+S_piece PIECE_STRUCT<2, 3, 2, 4, 1, 4, 1, 5>
 
 ;;O Piece coordinates (row,col): (1, 3), (0, 3), (1, 4), (0, 4)
-O_piece PIECE_STRUCT<1, 3, 0, 3, 1, 4, 0, 4>
+O_piece PIECE_STRUCT<2, 3, 1, 3, 2, 4, 1, 4>
 
 ;;J Piece coordinates (row,col): (1, 5), (0, 5), (0, 4), (0, 3)
-J_piece PIECE_STRUCT<1, 5, 0, 5, 0, 4, 0, 3>
+J_piece PIECE_STRUCT<2, 5, 1, 5, 1, 4, 1, 3>
 
 
 ;;Global variables used to time when pieces move down
